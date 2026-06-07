@@ -42,20 +42,26 @@ struct Order {
     const u64 order_id_;
     const u64 client_order_id_;
     const std::string symbol_;
+
     // Side & Type
     const Side side_;
     const OrderType order_type_;
     const TimeInForce time_in_force_;
+
     // Price
     const std::optional<i64> price_;
+
     // Quantity
     const u64 quantity_original_;
     u64 quantity_remaining_;
+
     // Timing
     const TimePoint timestamp_;
     const OptionalTimePoint timestamp_expiry_;
+
     // Status
     OrderStatus status_;
+
     // Constructor
     Order(u64 order_id, u64 client_order_id, const std::string& symbol, Side side, OrderType order_type, std::optional<i64> price, u64 quantity_original, TimeInForce time_in_force=TimeInForce::GTC, OptionalTimePoint timestamp_expiry=std::nullopt)
     : order_id_ (order_id)
