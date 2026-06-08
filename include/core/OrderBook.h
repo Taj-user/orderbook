@@ -7,18 +7,15 @@
 #include "PriceLevel.h"
 
 class OrderBook {
-    // Bids: Highest price first
-    std::map<i64, PriceLevel, std::greater<i64>> bids_;
-    // Asks: Lowest price first
-    std::map<i64, PriceLevel> asks_;
-    // Order lookup by ID for fast cancellation
-    std::unordered_map<u64, Order*> order_map_;
+    std::map<i64, PriceLevel, std::greater<i64>> bids_;                     // Bids: Highest price first
+    std::map<i64, PriceLevel> asks_;                                        // Asks: Lowest price first
+    std::unordered_map<u64, Order*> order_map_;                             // Order lookup by ID for fast cancellation
 
     public:
         void insert(Order* order);                                          // adds to correct side and price leve, creates level if needed
         bool cancel(u64 order_id);                                          // looks up in map, marks as CANCELLED, removes from level
-        std::optional<i64> bestBid() const;
-        std::optional<i64> bestAsk() const;
-        const std::map<i64, PriceLevel, std::greater<i64>>& bids() const;
-        const std::map<i64, PriceLevel>& asks() const;
+        std::optional<i64> bestBid() const;                                 // top of bids, nullopt is empty
+        std::optional<i64> bestAsk() const;                                 // top of asks, nullopt if empty
+        const std::map<i64, PriceLevel, std::greater<i64>>& bids() const;   // exposes bids for MatchingEngine
+        const std::map<i64, PriceLevel>& asks() const;                      // exposes asks for MatchingEngine
 };
