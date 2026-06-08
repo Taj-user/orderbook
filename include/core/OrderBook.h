@@ -3,6 +3,7 @@
 #include <map>
 #include <unordered_map>
 #include <functional>
+#include <optional>
 #include "PriceLevel.h"
 
 class OrderBook {
