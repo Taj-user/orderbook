@@ -15,5 +15,5 @@ class PriceLevel {
         u64 totalQuantity() const;                              // sum of quantity_remaining_ across all orders
         bool isEmpty() const;                                   // true when queue has no orders
         size_t size() const;                                    // number of orders at this level
-        i64 price() const;
+        i64 price() const;                                      // returns price
 };
