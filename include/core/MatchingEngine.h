@@ -11,7 +11,7 @@ class MatchingEngine {
     std::vector<Trade> trade_log_;
 
     public:
-        void submit(u64 order_id, u64 client_order_id, const std::string& symbol, Side side, OrderType order_type, std::optional<i64> price, u64 quantity_original, TimeInForce time_in_force=TimeInForce::GTC, OptionalTimePoint timestamp_expiry=std::nullopt);
+        void submit(Order* order);
         bool cancel(u64 order_id);
         const std::vector<Trade>& trades() const;
         const OrderBook& book() const;
