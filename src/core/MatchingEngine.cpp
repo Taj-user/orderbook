@@ -62,4 +62,14 @@ void MatchingEngine::submit(Order* order) {
     else process(book_.bids());
 }
 
-// TODO: cancel method
+bool MatchingEngine::cancel(u64 order_id) {
+    return book_.cancel(order_id);
+}
+
+const std::vector<Trade>& MatchingEngine::trades() const {
+    return trade_log_;
+}
+
+const OrderBook& MatchingEngine::book() const {
+    return book_;
+}
