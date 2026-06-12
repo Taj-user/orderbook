@@ -46,6 +46,14 @@ std::optional<i64> OrderBook::bestAsk() const {
     return it->first;
 }
 
+std::map<i64, PriceLevel, std::greater<i64>>& OrderBook::bids() {
+    return bids_;
+}
+
+std::map<i64, PriceLevel>& OrderBook::asks() {
+    return asks_;
+}
+
 const std::map<i64, PriceLevel, std::greater<i64>>& OrderBook::bids() const {
     return bids_;
 }
