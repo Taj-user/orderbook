@@ -5,13 +5,13 @@
 #include "../core/Order.h"
 
 struct L1Data {
-    i64 best_bid_price_;
-    u64 best_bid_quantity_;
-    i64 best_ask_price_;
-    u64 best_ask_quantity_;
-    i64 last_trade_price_;
-    u64 last_trade_quantity_;
-    i64 spread_;                            // best_ask_price_ - best_bid_price_
+    i64 best_bid_price_ = 0;
+    u64 best_bid_quantity_ = 0;
+    i64 best_ask_price_ = 0;
+    u64 best_ask_quantity_ = 0;
+    i64 last_trade_price_ = 0;
+    u64 last_trade_quantity_ = 0;
+    i64 spread_ = 0;                            // best_ask_price_ - best_bid_price_
 };
 
 struct PriceEntry {
@@ -21,10 +21,10 @@ struct PriceEntry {
 };
 
 struct L2Data {
-    std::string symbol_;
+    std::string symbol_ = "";
     std::vector<PriceEntry> bids_;
     std::vector<PriceEntry> asks_;
-    int depth_;
+    int depth_ = 0;
 };
 
 struct TradeMessage {
