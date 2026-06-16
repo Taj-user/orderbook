@@ -72,7 +72,7 @@ std::string MarketDataPublisher::serializeL1(const L1Data& data) const {
         {"last_trade_quantity", data.last_trade_quantity_},
         {"spread", data.spread_},
     };
-    return j.dump;
+    return j.dump();
 }
 
 std::string MarketDataPublisher::serializeL2(const L2Data& data) const {

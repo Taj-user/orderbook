@@ -15,6 +15,7 @@ include(FetchContent)
 FetchContent_Declare(
     nlohmann_json
     URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz
+    DOWNLOAD_EXTRACT_TIMESTAMP TRUE
 )
 FetchContent_MakeAvailable(nlohmann_json)
 
@@ -26,6 +27,11 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(Catch2)
 
+# Redis
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(hiredis REQUIRED hiredis)
+pkg_check_modules(redispp REQUIRED redis++)
+
 # ─── Core Library ─────────────────────────────────────────────────────────────
 
 add_library(orderbook_core
@@ -35,11 +41,17 @@ add_library(orderbook_core
     src/feed/MarketDataPublisher.cpp
 )
 
-target_include_directories(orderbook_core PUBLIC include)
+target_include_directories(orderbook_core PUBLIC
+    include
+    ${hiredis_INCLUDE_DIRS}
+    ${redispp_INCLUDE_DIRS}
+)
 
 target_link_libraries(orderbook_core
     PUBLIC
         nlohmann_json::nlohmann_json
+        ${hiredis_LIBRARIES}
+        ${redispp_LIBRARIES}
 )
 
 # ─── Main Executable ──────────────────────────────────────────────────────────
