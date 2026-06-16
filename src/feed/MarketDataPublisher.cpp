@@ -1,5 +1,7 @@
 #include "../../include/feed/MarketDataPublisher.h"
 
+using json = nlohmann::json;
+
 L1Data MarketDataPublisher::getL1(const OrderBook& book, i64 last_trade_price, u64 last_trade_quantity) const {
     L1Data data;
     data.last_trade_price_ = last_trade_price;
@@ -57,4 +59,58 @@ TradeMessage MarketDataPublisher::getTradeMessage(const Trade& trade) const {
     msg.quantity_ = trade.quantity_;
     msg.timestamp_ = trade.timestamp_;
     return msg;
+}
+
+std::string MarketDataPublisher::serializeL1(const L1Data& data) const {
+    json j = {
+        {"type", "l1"},
+        {"best_bid_price", data.best_bid_price_},
+        {"best_bid_quantity", data.best_bid_quantity_},
+        {"best_ask_price", data.best_ask_price_},
+        {"best_ask_quantity", data.best_ask_quantity_},
+        {"last_trade_price", data.last_trade_price_},
+        {"last_trade_quantity", data.last_trade_quantity_},
+        {"spread", data.spread_},
+    };
+    return j.dump;
+}
+
+std::string MarketDataPublisher::serializeL2(const L2Data& data) const {
+    json bids_array = json::array();
+    for(const auto& entry : data.bids_) {
+        bids_array.push_back({
+            {"price", entry.price_},
+            {"total_quantity", entry.total_quantity_},
+            {"num_orders", entry.num_orders_},
+        });
+    }
+    json asks_array = json::array();
+    for(const auto& entry : data.asks_) {
+        asks_array.push_back({
+            {"price", entry.price_},
+            {"total_quantity", entry.total_quantity_},
+            {"num_orders", entry.num_orders_},
+        });
+    }
+
+    json j = {
+        {"type", "l2"},
+        {"symbol", data.symbol_},
+        {"bids", bids_array},
+        {"asks", asks_array},
+        {"depth", data.depth_},
+    };
+    return j.dump();
+}
+
+std::string MarketDataPublisher::serializeTradeMessage(const TradeMessage& msg) const {
+    json j = {
+        {"type", "trade_message"},
+        {"trade_id", msg.trade_id_},
+        {"symbol", msg.symbol_},
+        {"price", msg.price_},
+        {"quantity", msg.quantity_},
+        {"timestamp", msg.timestamp_.time_since_epoch().count()},
+    };
+    return j.dump();
 }

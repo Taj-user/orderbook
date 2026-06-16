@@ -2,7 +2,7 @@
 #include "FeedTypes.h"
 #include "../core/Trade.h"
 #include "../core/OrderBook.h"
-// #include <nlohmann/json.hpp>                 // uncomment before compiling
+#include <nlohmann/json.hpp>                 // uncomment before compiling
 
 class MarketDataPublisher {
     public:

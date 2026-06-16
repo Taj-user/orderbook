@@ -21,7 +21,7 @@ struct PriceEntry {
 };
 
 struct L2Data {
-    std::string symbol_ = "";
+    std::string symbol_;
     std::vector<PriceEntry> bids_;
     std::vector<PriceEntry> asks_;
     int depth_ = 0;
