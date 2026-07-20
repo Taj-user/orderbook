@@ -17,4 +17,5 @@ class Server {
                 std::thread                     m_run;
                 std::thread                     m_worker;
                 std::vector<std::thread>        m_threads;
+                std::vector<SOCKET>             m_clients;
 };

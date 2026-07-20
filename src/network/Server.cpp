@@ -35,18 +35,26 @@ Server::Server(MatchingEngine& engine, int port)
 Server::~Server() {
         m_running = false;
         closesocket(m_socketfd);
+
         m_run.join();
-        m_worker.join();
+        m_engine.shutdown();
+
+        for(auto& client : m_clients) closesocket(client);
+
         for(auto& t : m_threads) {
                 if(t.joinable()) t.join();
         }
+
+        m_worker.join();
+
         WSACleanup();
 }
 
 void Server::dispatch_results() {
-        while(m_running) {
+        while(true) {
                 MatchResult result;
-                m_engine.pop_result(result);
+                if(!m_engine.pop_result(result)) break;
+
                 SOCKET bid_socket = m_registry.lookup(result.bid_order_id);
                 SOCKET ask_socket = m_registry.lookup(result.ask_order_id);
                 if(bid_socket == ask_socket) send_all(bid_socket, reinterpret_cast<char*>(&result), sizeof(result));
@@ -71,6 +79,9 @@ void Server::run() {
                         closesocket(m_socketfd);
                         return;
                 }
+
+                m_clients.push_back(clientfd);
+
                 std::thread t([clientfd, this]() -> void {
                         Order order;
                         int recvfd {};
@@ -90,6 +101,8 @@ int main(void) {
         Server server(engine, 8080);
 
         std::cin.get();                 // block until Enter is pressed. Or define a signal handler
+
+        engine.print_latency_stats();
 
         return 0;
 }
