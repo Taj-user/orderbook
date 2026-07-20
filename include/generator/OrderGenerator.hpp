@@ -4,6 +4,7 @@
 #include "../network/TcpClient.hpp"
 #include <atomic>
 #include <random>
+#include <vector>
 
 class OrderGenerator {
         public:
@@ -12,7 +13,9 @@ class OrderGenerator {
 
         private:
                 Order generate_order();
+                void print_latency_stats() const;
                 void receive_results();
+                std::vector<u64> m_latencies;
                 u64 m_next_order_id {0};
                 std::atomic<u64> m_matches_received {0};
                 OrderGeneratorConfig m_config;

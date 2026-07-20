@@ -31,6 +31,8 @@ std::vector<MatchResult> OrderBook::match_orders() {
                 MatchResult result;
                 result.bid_order_id     = best_bid->second.front().order_id;
                 result.ask_order_id     = best_ask->second.front().order_id;
+                result.bid_timestamp    = best_bid->second.front().timestamp;
+                result.ask_timestamp    = best_ask->second.front().timestamp;
                 result.price            = best_ask->first;
                 result.match_qty        = match_qty;
                 result.bid_complete     = best_bid->second.front().quantity == 0;
