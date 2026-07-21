@@ -65,7 +65,7 @@ vcpkg_installed/
 
 # test output & cache
 Testing/
-tests
+tests/
 .cache/
 
 # extras

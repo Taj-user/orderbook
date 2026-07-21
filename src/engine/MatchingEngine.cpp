@@ -22,7 +22,6 @@ MatchingEngine::MatchingEngine(OrderBook& book)
 
 MatchingEngine::~MatchingEngine() {
         m_running = false;
-        m_ring_buffer.close();
         m_result_queue.close();
         m_worker.join();
         print_latency_stats();
@@ -36,9 +35,12 @@ bool MatchingEngine::pop_result(MatchResult& result) {
 void MatchingEngine::process_orders() {
         std::vector<MatchResult> match_vec;
         match_vec.reserve(32);
-        while(true) {
+        while(m_running) {
                 Order order;
-                if(!m_ring_buffer.pop(order)) break;
+                if(!m_ring_buffer.pop(order)) {
+                        std::this_thread::yield();
+                        continue;
+                };
 
                 auto start = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
 
@@ -109,11 +111,10 @@ void MatchingEngine::print_latency_stats() const {
 }
 
 void MatchingEngine::submit_order(const Order& order) {
-        m_ring_buffer.push(order);
+        while(!m_ring_buffer.push(order)) std::this_thread::yield();
 }
 
 void MatchingEngine::shutdown() {
         m_running = false;
-        m_ring_buffer.close();
         m_result_queue.close();
 }
