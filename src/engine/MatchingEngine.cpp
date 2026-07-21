@@ -34,6 +34,8 @@ bool MatchingEngine::pop_result(MatchResult& result) {
 }
 
 void MatchingEngine::process_orders() {
+        std::vector<MatchResult> match_vec;
+        match_vec.reserve(32);
         while(true) {
                 Order order;
                 if(!m_ring_buffer.pop(order)) break;
@@ -42,7 +44,7 @@ void MatchingEngine::process_orders() {
 
                 m_book.add_order(order);
 
-                auto match_vec = m_book.match_orders();
+                m_book.match_orders(match_vec);
 
                 for(const auto& match : match_vec) {
                         m_result_queue.push(match);

@@ -12,9 +12,9 @@ void OrderBook::add_order(const Order& order) {
         }
 }
 
-std::vector<MatchResult> OrderBook::match_orders() {
+void OrderBook::match_orders(std::vector<MatchResult>& matches) {
+        matches.clear();
         u32 match_qty {};
-        std::vector<MatchResult> match_results;
 
         while(!m_bids.empty() && !m_asks.empty()) {
                 auto best_bid = m_bids.begin();
@@ -37,7 +37,7 @@ std::vector<MatchResult> OrderBook::match_orders() {
                 result.match_qty        = match_qty;
                 result.bid_complete     = best_bid->second.front().quantity == 0;
                 result.ask_complete     = best_ask->second.front().quantity == 0;
-                match_results.push_back(result);
+                matches.push_back(result);
 
                 if(result.bid_complete) best_bid->second.pop();
                 if(result.ask_complete) best_ask->second.pop();
@@ -45,5 +45,4 @@ std::vector<MatchResult> OrderBook::match_orders() {
                 if(best_bid->second.empty()) best_bid = m_bids.erase(best_bid);
                 if(best_ask->second.empty()) best_ask = m_asks.erase(best_ask);
         }
-        return match_results;
 }
