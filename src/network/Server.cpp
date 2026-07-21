@@ -102,7 +102,5 @@ int main(void) {
 
         std::cin.get();                 // block until Enter is pressed. Or define a signal handler
 
-        engine.print_latency_stats();
-
         return 0;
 }
