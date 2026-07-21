@@ -1,5 +1,6 @@
 #include "../../include/network/Server.hpp"
 #include "../../include/common/utils.hpp"
+#include <immintrin.h>
 #include <iostream>
 
 Server::Server(MatchingEngine& engine, int port)
@@ -51,19 +52,25 @@ Server::~Server() {
 }
 
 void Server::dispatch_results() {
-        while(true) {
+        while(m_running) {
                 MatchResult result;
-                if(!m_engine.pop_result(result)) break;
+                if(!m_engine.pop_result(result)) {
+                        _mm_pause();
+                        continue;
+                }
 
                 SOCKET bid_socket = m_registry.lookup(result.bid_order_id);
                 SOCKET ask_socket = m_registry.lookup(result.ask_order_id);
+
                 if(bid_socket == ask_socket) send_all(bid_socket, reinterpret_cast<char*>(&result), sizeof(result));
                 else {
                         send_all(bid_socket, reinterpret_cast<char*>(&result), sizeof(result));
                         send_all(ask_socket, reinterpret_cast<char*>(&result), sizeof(result));
                 }
+
                 if(result.bid_complete) m_registry.unbind(result.bid_order_id);
                 if(result.ask_complete) m_registry.unbind(result.ask_order_id);
+
                 std::cout << result.match_qty << " shares at $" << result.price
                         << " | BID=" << result.bid_order_id
                         << " | ASK=" << result.ask_order_id << "\n";

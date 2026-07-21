@@ -1,5 +1,6 @@
 #include "../../include/engine/MatchingEngine.hpp"
 #include <algorithm>
+#include <immintrin.h>
 #include <iomanip>
 #include <iostream>
 
@@ -22,14 +23,12 @@ MatchingEngine::MatchingEngine(OrderBook& book)
 
 MatchingEngine::~MatchingEngine() {
         m_running = false;
-        m_result_queue.close();
         m_worker.join();
         print_latency_stats();
 }
 
 bool MatchingEngine::pop_result(MatchResult& result) {
-                bool status = m_result_queue.pop(result);
-                return status;
+                return m_result_queue.pop(result);
 }
 
 void MatchingEngine::process_orders() {
@@ -38,7 +37,7 @@ void MatchingEngine::process_orders() {
         while(m_running) {
                 Order order;
                 if(!m_ring_buffer.pop(order)) {
-                        std::this_thread::yield();
+                        _mm_pause();                    // tells CPU its spinning intentionally
                         continue;
                 };
 
@@ -49,7 +48,9 @@ void MatchingEngine::process_orders() {
                 m_book.match_orders(match_vec);
 
                 for(const auto& match : match_vec) {
-                        m_result_queue.push(match);
+                        while(!m_result_queue.push(match)) {
+                                _mm_pause();
+                        }
                 }
 
                 auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now().time_since_epoch()).count() - start;
@@ -111,10 +112,9 @@ void MatchingEngine::print_latency_stats() const {
 }
 
 void MatchingEngine::submit_order(const Order& order) {
-        while(!m_ring_buffer.push(order)) std::this_thread::yield();
+        while(!m_ring_buffer.push(order)) _mm_pause();
 }
 
 void MatchingEngine::shutdown() {
         m_running = false;
-        m_result_queue.close();
 }
