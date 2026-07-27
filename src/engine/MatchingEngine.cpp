@@ -108,7 +108,6 @@ void MatchingEngine::print_latency_stats() const {
         std::cout << "\nmaximum: ";
         print_time_ns(max_latency);
         std::cout << "\n";
-
 }
 
 void MatchingEngine::submit_order(const Order& order) {
