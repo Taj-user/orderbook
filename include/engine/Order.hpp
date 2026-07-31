@@ -1,5 +1,6 @@
 #pragma once
 #include "../common/Types.hpp"
+#include <variant>
 
 namespace OrderFlags {
         constexpr u8 BUY        = 1 << 0;
@@ -9,12 +10,33 @@ namespace OrderFlags {
         constexpr u8 HIDDEN     = 1 << 4;
 }
 
+enum class MessageType {
+        NewOrder,
+        Cancel,
+};
+
+enum class ResultType {
+        Fill,
+        CancelAck,
+        CancelReject,
+};
+
+struct CancelRequest {
+        u64 order_id;
+        u64 timestamp;
+};
+
 struct Order {
         u64     order_id;
         u64     timestamp;
         double  price;
         u32     quantity;
         u8      side = OrderFlags::BUY;
+};
+
+struct ClientMessage {
+        MessageType type;
+        std::variant<Order, CancelRequest> order_state;
 };
 
 struct MatchResult {
