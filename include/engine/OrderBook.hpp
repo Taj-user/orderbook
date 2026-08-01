@@ -9,12 +9,14 @@
 
 class OrderBook {
         public:
-                void insert(Order* order);
-                bool cancel(u64 order_id);
-                std::optional<Price> best_bid() const;
-                std::optional<Price> best_ask() const;
-                const std::map<Price, PriceLevel, std::greater<Price>>& bids() const;
-                const std::map<Price, PriceLevel>& asks() const;
+                void insert(Order* order);                                                      // adds to correct side and price level, created level if needed
+                bool cancel(u64 order_id);                                                      // looks up in map, mark as CANCELLED, removes from level
+                std::optional<Price> best_bid() const;                                          // top of bids, nullopt if empty
+                std::optional<Price> best_ask() const;                                          // top of asks, nullopt if empty
+                std::map<Price, PriceLevel, std::greater<Price>>& bids();                       // exposes bids for MatchingEngine
+                std::map<Price, PriceLevel>& asks();                                            // exposes asks for MatchingEngine
+                const std::map<Price, PriceLevel, std::greater<Price>>& bids() const;           // exposes bids for MatchingEngine
+                const std::map<Price, PriceLevel>& asks() const;                                // exposes asks for MatchingEngine
 
         private:
                 std::map<Price, PriceLevel, std::greater<Price>>         m_bids;                // Bids: highest price first
