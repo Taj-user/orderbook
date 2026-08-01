@@ -1,48 +1,46 @@
 #include "../../include/engine/OrderBook.hpp"
-#include "../../include/common/utils.hpp"
-#include <algorithm>
-#include <cassert>
 
-void OrderBook::add_order(const Order& order) {
-        if((order.side & OrderFlags::BUY) != 0) {
-                m_bids[to_price_int(order.price)].push(order);
-        }
-        else {
-                m_asks[to_price_int(order.price)].push(order);
+void OrderBook::insert(Order* order) {
+        if(order == nullptr) return;
+        if(order->m_price) {
+                if(order->m_side == OrderSide::BID) {
+                        auto& level = m_bids.try_emplace(*order->m_price, *order->m_price).first->second;
+                        level.add(order);
+                }
+                else {
+                        auto& level = m_asks.try_emplace(*order->m_price, *order->m_price).first->second;
+                        level.add(order);
+                }
+                m_order_lookup[order->m_order_id] = order;
         }
 }
 
-void OrderBook::match_orders(std::vector<MatchResult>& matches) {
-        matches.clear();
-        u32 match_qty {};
-
-        while(!m_bids.empty() && !m_asks.empty()) {
-                auto best_bid = m_bids.begin();
-                auto best_ask = m_asks.begin();
-
-                if(best_bid->first < best_ask->first) break;
-
-                match_qty = std::min(best_bid->second.front().quantity, best_ask->second.front().quantity);
-                assert(match_qty > 0);
-
-                best_bid->second.front().quantity -= match_qty;
-                best_ask->second.front().quantity -= match_qty;
-
-                MatchResult result;
-                result.bid_order_id     = best_bid->second.front().order_id;
-                result.ask_order_id     = best_ask->second.front().order_id;
-                result.bid_timestamp    = best_bid->second.front().timestamp;
-                result.ask_timestamp    = best_ask->second.front().timestamp;
-                result.price            = best_ask->first;
-                result.match_qty        = match_qty;
-                result.bid_complete     = best_bid->second.front().quantity == 0;
-                result.ask_complete     = best_ask->second.front().quantity == 0;
-                matches.push_back(result);
-
-                if(result.bid_complete) best_bid->second.pop();
-                if(result.ask_complete) best_ask->second.pop();
-
-                if(best_bid->second.empty()) best_bid = m_bids.erase(best_bid);
-                if(best_ask->second.empty()) best_ask = m_asks.erase(best_ask);
+bool OrderBook::cancel(u64 order_id) {
+        auto it = m_order_lookup.find(order_id);
+        if(it != m_order_lookup.end()) {
+                if(it->second->m_status == OrderStatus::OPEN || it->second->m_status == OrderStatus::PARTIALLY_FILLED) {
+                        it->second->m_status = OrderStatus::CANCELLED;
+                        m_order_lookup.erase(it);
+                        return true;
+                }
         }
+        return false;
+}
+
+std::optional<Price> OrderBook::best_bid() const {
+        if(m_bids.empty()) return std::nullopt;
+        return m_bids.begin()->first;
+}
+
+std::optional<Price> OrderBook::best_ask() const {
+        if(m_asks.empty()) return std::nullopt;
+        return m_asks.begin()->first;
+}
+
+const std::map<Price, PriceLevel, std::greater<Price>>& OrderBook::bids() const {
+        return m_bids;
+}
+
+const std::map<Price, PriceLevel>& OrderBook::asks() const {
+        return m_asks;
 }
