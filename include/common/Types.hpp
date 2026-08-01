@@ -1,9 +1,14 @@
 #pragma once
+#include <chrono>
 #include <cstdint>
+#include <optional>
 
-using Price     = int64_t;
-using u8        = uint8_t;
-using u16       = uint16_t;
-using u32       = uint32_t;
-using u64       = uint64_t;
+using Price             = int64_t;
+using u8                = uint8_t;
+using u16               = uint16_t;
+using u32               = uint32_t;
+using u64               = uint64_t;
+using TimePoint         = std::chrono::steady_clock::time_point;
+using OptionalTimePoint = std::optional<TimePoint>;
+
 constexpr Price PRICE_SCALE = 100;
