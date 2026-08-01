@@ -1,5 +1,7 @@
 #pragma once
+
 #include "../common/Types.hpp"
+
 #include <string>
 #include <variant>
 
@@ -56,18 +58,18 @@ struct Order {
 
         Order(u64 order_id, u64 client_order_id, const std::string& symbol, OrderSide side, OrderType type, std::optional<Price> price, u64 quantity_original
                         , TimeInForce time_in_force=TimeInForce::GTC, OptionalTimePoint timestamp_expiry=std::nullopt)
-                : m_order_id (order_id)
-                , m_client_order_id (client_order_id)
-                , m_symbol (symbol)
-                , m_side (side)
-                , m_type (type)
-                , m_time_in_force (time_in_force)
-                , m_price (price)
-                , m_quantity_original (quantity_original)
-                , m_quantity_remaining (quantity_original)
-                , m_timestamp (std::chrono::steady_clock::now())
-                , m_timestamp_expiry (timestamp_expiry)
-                , m_status (OrderStatus::NEW)
+                : m_order_id            (order_id)
+                , m_client_order_id     (client_order_id)
+                , m_symbol              (symbol)
+                , m_side                (side)
+                , m_type                (type)
+                , m_time_in_force       (time_in_force)
+                , m_price               (price)
+                , m_quantity_original   (quantity_original)
+                , m_quantity_remaining  (quantity_original)
+                , m_timestamp           (std::chrono::steady_clock::now())
+                , m_timestamp_expiry    (timestamp_expiry)
+                , m_status              (OrderStatus::NEW)
         {}
 };
 
