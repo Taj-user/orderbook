@@ -57,7 +57,7 @@ void WebSocketGateway::broadcast(const std::string& message) {
         std::vector<std::shared_ptr<Session>> to_erase;
         for(auto& session : m_sessions) {
                 beast::error_code ec;
-                session->m_ws.write(net::buffer(message));
+                session->m_ws.write(net::buffer(message), ec);
                 if(ec) to_erase.push_back(session);
         }
         for(auto& session : to_erase) {
