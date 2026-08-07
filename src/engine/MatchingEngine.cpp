@@ -116,3 +116,7 @@ void MatchingEngine::process_orders() {
                 else process(m_book.bids());
         }
 }
+
+u64 MatchingEngine::next_order_id() {
+        return m_next_order_id++;
+}

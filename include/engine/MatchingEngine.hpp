@@ -16,6 +16,7 @@ class MatchingEngine {
                 bool pop_result(Trade& out);
                 const OrderBook& book() const;
                 const std::vector<Trade>& trades() const;
+                u64 next_order_id();
 
         private:
                 void                            process_orders();

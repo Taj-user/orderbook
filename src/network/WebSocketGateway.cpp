@@ -65,23 +65,31 @@ void WebSocketGateway::on_message(const std::string& message) {
         if(action == "new_order") {
                 std::string symbol = j["symbol"].get<std::string>();
                 OrderSide side = (j["side"].get<std::string>() == "BID") ? OrderSide::BID : OrderSide::ASK;
-                OrderType type = j["type"].get<OrderType>();
+                OrderType type = (j["type"].get<std::string>() == "LIMIT") ? OrderType::LIMIT : OrderType::MARKET;
                 std::optional<Price> price = std::nullopt;
                 if(j.contains("price") && !j["price"].is_null()) {
                         price = j["price"].get<Price>();
                 }
                 u64 quantity = j["quantity"].get<u64>();
-                TimeInForce tif = j["tif"].get<TimeInForce>();
+                std::string tif_str = j["tif"].get<std::string>();
+                TimeInForce tif = TimeInForce::GTC;
+                if(tif_str == "IOC") tif = TimeInForce::IOC;
+                else if(tif_str == "FOK") tif = TimeInForce::FOK;
+                else if(tif_str == "GTD") tif = TimeInForce::GTD;
 
-                Order* order = new Order(0, 0, symbol, side, type, price, quantity, tif);
+                Order* order = new Order(m_engine.next_order_id(), 0, symbol, side, type, price, quantity, tif);
                 m_engine.submit(order);
 
                 Trade trade;
+                Trade last_trade;
+                bool had_trade = false;
                 while(m_engine.pop_result(trade)) {
+                        had_trade = true;
+                        last_trade = trade;
                         auto msg = m_publisher.get_trade_message(trade);
                         broadcast(m_publisher.serialize_trade_message(msg));
                 }
-                auto l1 = m_publisher.get_L1(m_engine.book(), trade.m_price, trade.m_quantity);
+                auto l1 = m_publisher.get_L1(m_engine.book(), had_trade ? last_trade.m_price : 0, had_trade ? last_trade.m_quantity : 0);
                 broadcast(m_publisher.serialize_L1(l1));
         }
         else if(action == "cancel_order") {
