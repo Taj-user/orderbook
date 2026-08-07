@@ -35,8 +35,8 @@ class WebSocketGateway {
                         {}
                 };
 
-                void accept();
                 void read(std::shared_ptr<Session> session);
+                void accept();
                 void on_message(const std::string& message);
                 net::io_context                         m_ioc;                                  // asio event loop
                 tcp::acceptor                           m_acceptor;                             // listens for incoming connections
