@@ -54,8 +54,14 @@ void WebSocketGateway::accept() {
 }
 
 void WebSocketGateway::broadcast(const std::string& message) {
+        std::vector<std::shared_ptr<Session>> to_erase;
         for(auto& session : m_sessions) {
+                beast::error_code ec;
                 session->m_ws.write(net::buffer(message));
+                if(ec) to_erase.push_back(session);
+        }
+        for(auto& session : to_erase) {
+                m_sessions.erase(std::remove(m_sessions.begin(), m_sessions.end(), session), m_sessions.end());
         }
 }
 
@@ -96,5 +102,3 @@ void WebSocketGateway::on_message(const std::string& message) {
                 m_engine.cancel(j["order_id"].get<u64>());
         }
 }
-
-
